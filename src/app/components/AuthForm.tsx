@@ -11,6 +11,10 @@ import { toast, Toaster } from "sonner";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
+interface LoginResponse {
+  accessToken: string;
+}
+
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -43,13 +47,14 @@ export function AuthForm() {
     setIsLoading(true);
     try {
       const response = await login(data.email, data.password);
+
       if (
         typeof response === "object" &&
         response !== null &&
         "accessToken" in response &&
-        typeof (response as any).accessToken === "string"
+        typeof (response as LoginResponse).accessToken === "string"
       ) {
-        setAuthToken((response as any).accessToken);
+        setAuthToken((response as LoginResponse).accessToken);
         toast.success("Login successful");
         router.push("/dashboard");
       } else {
