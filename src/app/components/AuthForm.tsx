@@ -5,10 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { initiateGoogleLogin, login } from "@/src/lib/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { useAuth } from "@/src/hooks/useAuth";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -19,7 +20,19 @@ type FormData = z.infer<typeof formSchema>;
 
 export function AuthForm() {
   const router = useRouter();
+  const { setAuthToken } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+    if (token) {
+      setAuthToken(token);
+      toast.success("Login com Google feito com sucesso");
+      router.push("/dashboard");
+      window.history.replaceState({}, document.title, "/");
+    }
+  }, [setAuthToken, router]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -29,9 +42,15 @@ export function AuthForm() {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      await login(data.email, data.password);
-      toast.success("Login successful");
-      router.push("/dashboard");
+      const response = await login(data.email, data.password);
+      if (typeof response === "object" && response !== null && "accessToken" in response) {
+        const { accessToken } = response as { accessToken: string };
+        setAuthToken(accessToken);
+        toast.success("Login successful");
+        router.push("/dashboard");
+      } else {
+        throw new Error();
+      }
     } catch {
       toast.error("Login failed");
     } finally {
@@ -41,7 +60,7 @@ export function AuthForm() {
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
-    initiateGoogleLogin();
+    initiateGoogleLogin(); // redireciona para Google
   };
 
   return (
