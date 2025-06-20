@@ -5,11 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { initiateGoogleLogin, login } from "@/src/lib/api";
-import { useAuth } from "@/src/lib/auth";
 import { useState, useEffect } from "react";
 import { toast, Toaster } from "sonner";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { useAuth } from "@/src/hooks/useAuth";
 
 interface LoginResponse {
   accessToken: string;
