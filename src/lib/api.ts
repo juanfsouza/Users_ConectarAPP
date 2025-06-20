@@ -1,23 +1,22 @@
-import axios from "axios";
-import { AuthResponse, User } from "../types";
+import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
   withCredentials: true,
 });
 
-export const loginWithGoogle = async (code: string): Promise<AuthResponse> => {
-  try {
-    const response = await api.post<AuthResponse>("/auth/google/callback", { code });
-    return response.data;
-  } catch {
-    throw new Error("Network error during authentication");
-  }
+export const initiateGoogleLogin = () => {
+  window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
 };
 
 export const getUsers = async (token: string) => {
-  const response = await api.get<{ users: User[]; total: number }>("/users", {
+  const response = await api.get('/users', {
     headers: { Authorization: `Bearer ${token}` },
   });
+  return response.data;
+};
+
+export const refreshToken = async (refreshToken: string) => {
+  const response = await api.post('/auth/refresh', { refreshToken });
   return response.data;
 };

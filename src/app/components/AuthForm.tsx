@@ -4,9 +4,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
-import { loginWithGoogle } from "@/src/lib/api";
+import { initiateGoogleLogin } from "@/src/lib/api";
 import { useAuth } from "@/src/lib/auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast, Toaster } from "sonner";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -28,22 +28,31 @@ export function AuthForm() {
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = async () => {
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+    if (token) {
+      setAuthToken(token);
+      toast.success("Login successful");
+      router.push("/dashboard");
+      window.history.replaceState({}, document.title, "/");
+    }
+  }, [setAuthToken, router]);
+
+  const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      const response = await loginWithGoogle("mock-code");
-      if (response.accessToken) {
-        setAuthToken(response.accessToken);
-        toast.success("Login successful");
-        router.push("/dashboard");
-      } else {
-        throw new Error("No access token received");
-      }
+      toast.error("Login with email/password not implemented yet");
     } catch {
       toast.error("Login failed");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    setIsLoading(true);
+    initiateGoogleLogin();
   };
 
   return (
@@ -76,9 +85,7 @@ export function AuthForm() {
         </Button>
         <Button
           variant="outline"
-          onClick={() =>
-            (window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`)
-          }
+          onClick={handleGoogleLogin}
           disabled={isLoading}
         >
           Login with Google
