@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@/src/hooks/useAuth";
 import { getUsers } from "@/src/lib/api";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -18,15 +17,13 @@ type GetUsersResponse = {
 };
 
 export function UserTable() {
-  const { token } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      if (!token) return;
       try {
-        const data = await getUsers(token);
+        const data = await getUsers();
         if (
           data &&
           typeof data === "object" &&
@@ -44,10 +41,9 @@ export function UserTable() {
       }
     };
     fetchUsers();
-  }, [token]);
+  }, []);
 
   if (loading) return <p>Loading...</p>;
-  if (!token) return <p>Please log in to see users.</p>;
 
   return (
     <Card>

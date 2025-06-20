@@ -1,12 +1,14 @@
 import axios from 'axios';
 
+const baseURL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL,
   withCredentials: true,
 });
 
 export const initiateGoogleLogin = () => {
-  window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`;
+  window.location.href = `${baseURL}/api/auth/google`;
 };
 
 export const login = async (email: string, password: string) => {
@@ -14,14 +16,12 @@ export const login = async (email: string, password: string) => {
   return response.data;
 };
 
-export const getUsers = async (token: string) => {
-  const response = await api.get('/api/users', {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const getUsers = async () => {
+  const response = await api.get('/api/users');
   return response.data;
 };
 
-export const refreshToken = async (refreshToken: string) => {
-  const response = await api.post('/api/auth/refresh', { refreshToken });
+export const refreshToken = async () => {
+  const response = await api.post('/api/auth/refresh');
   return response.data;
 };

@@ -5,15 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { initiateGoogleLogin, login } from "@/src/lib/api";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast, Toaster } from "sonner";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useAuth } from "@/src/hooks/useAuth";
-
-interface LoginResponse {
-  accessToken: string;
-}
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -23,7 +18,6 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export function AuthForm() {
-  const { setAuthToken } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,34 +26,12 @@ export function AuthForm() {
     defaultValues: { email: "", password: "" },
   });
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
-    if (token) {
-      setAuthToken(token);
-      toast.success("Login successful");
-      router.push("/dashboard");
-      window.history.replaceState({}, document.title, "/");
-    }
-  }, [setAuthToken, router]);
-
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      const response = await login(data.email, data.password);
-
-      if (
-        typeof response === "object" &&
-        response !== null &&
-        "accessToken" in response &&
-        typeof (response as LoginResponse).accessToken === "string"
-      ) {
-        setAuthToken((response as LoginResponse).accessToken);
-        toast.success("Login successful");
-        router.push("/dashboard");
-      } else {
-        throw new Error("No access token received");
-      }
+      await login(data.email, data.password);
+      toast.success("Login successful");
+      router.push("/dashboard");
     } catch {
       toast.error("Login failed");
     } finally {
