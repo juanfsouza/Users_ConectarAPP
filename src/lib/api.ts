@@ -1,12 +1,17 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://localhost:3000/',
   withCredentials: true,
 });
 
 export const initiateGoogleLogin = () => {
   window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+};
+
+export const login = async (email: string, password: string) => {
+  const response = await api.post('/auth/login', { email, password });
+  return response.data;
 };
 
 export const getUsers = async (token: string) => {

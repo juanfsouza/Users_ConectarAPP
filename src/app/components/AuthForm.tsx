@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
-import { initiateGoogleLogin } from "@/src/lib/api";
+import { initiateGoogleLogin, login } from "@/src/lib/api";
 import { useAuth } from "@/src/lib/auth";
 import { useState, useEffect } from "react";
 import { toast, Toaster } from "sonner";
@@ -42,7 +42,19 @@ export function AuthForm() {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      toast.error("Login with email/password not implemented yet");
+      const response = await login(data.email, data.password);
+      if (
+        typeof response === "object" &&
+        response !== null &&
+        "accessToken" in response &&
+        typeof (response as any).accessToken === "string"
+      ) {
+        setAuthToken((response as any).accessToken);
+        toast.success("Login successful");
+        router.push("/dashboard");
+      } else {
+        throw new Error("No access token received");
+      }
     } catch {
       toast.error("Login failed");
     } finally {

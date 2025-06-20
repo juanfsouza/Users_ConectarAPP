@@ -1,8 +1,8 @@
 "use client";
 
+import { useAuth } from "@/src/hooks/useAuth";
 import { getUsers } from "@/src/lib/api";
-import { useAuth } from "@/src/lib/auth";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 
@@ -13,17 +13,30 @@ type User = {
   role: string;
 };
 
+type GetUsersResponse = {
+  users: User[];
+};
+
 export function UserTable() {
   const { token } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchUsers = async () => {
       if (!token) return;
       try {
         const data = await getUsers(token);
-        setUsers(data.users);
+        if (
+          data &&
+          typeof data === "object" &&
+          "users" in data &&
+          Array.isArray((data as GetUsersResponse).users)
+        ) {
+          setUsers((data as GetUsersResponse).users);
+        } else {
+          throw new Error("Invalid users data");
+        }
       } catch {
         toast.error("Failed to load users");
       } finally {
