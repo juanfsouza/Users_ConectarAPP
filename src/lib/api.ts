@@ -6,22 +6,22 @@ const api = axios.create({
 });
 
 export const initiateGoogleLogin = () => {
-  window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+  window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`;
 };
 
 export const login = async (email: string, password: string) => {
-  const response = await api.post('/auth/login', { email, password });
+  const response = await api.post('/api/auth/login', { email, password });
   return response.data;
 };
 
 export const getUsers = async (token: string) => {
-  const response = await api.get('/users', {
+  const response = await api.get('/api/users', {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
 };
 
 export const refreshToken = async (refreshToken: string) => {
-  const response = await api.post('/auth/refresh', { refreshToken });
+  const response = await api.post('/api/auth/refresh', { refreshToken });
   return response.data;
 };
