@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
+import { setToken, getToken, clearToken } from "@/src/lib/tokenManager";
 
 export const useAuth = () => {
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setLocalToken] = useState<string | null>(getToken());
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) setToken(storedToken);
+    setLocalToken(getToken());
   }, []);
 
   const setAuthToken = (newToken: string) => {
-    localStorage.setItem("token", newToken);
     setToken(newToken);
+    setLocalToken(newToken);
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
+    clearToken();
+    setLocalToken(null);
   };
 
   return { token, setAuthToken, logout };

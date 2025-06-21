@@ -4,13 +4,8 @@ import { getUsers, getCurrentUser } from "@/src/lib/api";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
+import { User } from "@/src/types";
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-};
 
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([]);
@@ -56,14 +51,20 @@ export function UserTable() {
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Created At</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id}>
+              <tr key={user.id} className="border-t">
                 <td>{user.name}</td>
                 <td>{user.email}</td>
                 <td>{user.role}</td>
+                <td>
+                  {user.createdAt
+                    ? new Date(user.createdAt).toLocaleString()
+                    : "—"}
+                </td>
               </tr>
             ))}
           </tbody>
