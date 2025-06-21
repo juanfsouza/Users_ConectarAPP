@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios from "axios";
+import { User, AuthResponse } from "@/src/types";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 
@@ -11,17 +12,36 @@ export const initiateGoogleLogin = () => {
   window.location.href = `${baseURL}/api/auth/google`;
 };
 
-export const login = async (email: string, password: string) => {
-  const response = await api.post('/api/auth/login', { email, password });
+export const login = async (
+  email: string,
+  password: string
+): Promise<AuthResponse> => {
+  const response = await api.post<AuthResponse>("/api/auth/login", {
+    email,
+    password,
+  });
   return response.data;
 };
 
-export const getUsers = async () => {
-  const response = await api.get('/api/users');
+export const getUsers = async (): Promise<{ users: User[] }> => {
+  const response = await api.get<{ users: User[] }>("/api/users");
   return response.data;
 };
 
-export const refreshToken = async () => {
-  const response = await api.post('/api/auth/refresh');
+export const refreshToken = async (): Promise<AuthResponse> => {
+  const response = await api.post<AuthResponse>("/api/auth/refresh");
   return response.data;
+};
+
+export const getCurrentUser = async (): Promise<User> => {
+  const res = await fetch(`${baseURL}/api/auth/me`, {
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error("Not authenticated");
+  }
+
+  const user: User = await res.json();
+  return user;
 };

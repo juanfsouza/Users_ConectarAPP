@@ -1,6 +1,6 @@
 "use client";
 
-import { getUsers } from "@/src/lib/api";
+import { getUsers, getCurrentUser } from "@/src/lib/api";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
@@ -12,35 +12,34 @@ type User = {
   role: string;
 };
 
-type GetUsersResponse = {
-  users: User[];
-};
-
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getUsers();
-        if (
-          data &&
-          typeof data === "object" &&
-          "users" in data &&
-          Array.isArray((data as GetUsersResponse).users)
-        ) {
-          setUsers((data as GetUsersResponse).users);
+        const currentUser: User = await getCurrentUser();
+
+        if (currentUser.role === "admin") {
+          const data = await getUsers();
+          if (data && Array.isArray(data.users)) {
+            setUsers(data.users);
+          } else {
+            throw new Error("Invalid data from getUsers");
+          }
         } else {
-          throw new Error("Invalid users data");
+          setUsers([currentUser]);
         }
-      } catch {
+      } catch (err) {
+        console.error(err);
         toast.error("Failed to load users");
       } finally {
         setLoading(false);
       }
     };
-    fetchUsers();
+
+    fetchData();
   }, []);
 
   if (loading) return <p>Loading...</p>;
