@@ -1,22 +1,28 @@
 import axios from "axios";
-import { useAuth } from "@/src/hooks/useAuth";
 import { User, AuthResponse } from "@/src/types";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 
+let token: string | null = null;
+
+const setToken = (newToken: string) => {
+  token = newToken;
+};
+
+const getToken = () => token;
+
 const api = axios.create({
   baseURL,
-  withCredentials: true, // Keeps cookies (e.g., accessToken) for cross-origin requests
+  withCredentials: true,
 });
 
-// Add interceptor to include token in headers
 api.interceptors.request.use((config) => {
-  const { token } = useAuth(); // This won't work directly; see below for a workaround
-  if (token) {
+  const currentToken = getToken();
+  if (currentToken) {
     if (!config.headers) {
       config.headers = {};
     }
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${currentToken}`;
   }
   return config;
 });
@@ -33,6 +39,9 @@ export const login = async (
     email,
     password,
   });
+  if (response.data.accessToken) {
+    setToken(response.data.accessToken);
+  }
   return response.data;
 };
 

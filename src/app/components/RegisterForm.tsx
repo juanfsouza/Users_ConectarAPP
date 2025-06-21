@@ -29,7 +29,7 @@ export function RegisterForm() {
       await createUser(data);
       toast.success("Account created! Please login.");
       router.push("/");
-    } catch (error) {
+    } catch {
       toast.error("Registration failed");
     }
   };

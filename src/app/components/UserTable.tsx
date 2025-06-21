@@ -45,22 +45,22 @@ export function UserTable() {
         <CardTitle>Users</CardTitle>
       </CardHeader>
       <CardContent>
-        <table className="w-full text-left">
-          <thead>
+        <table className="w-full text-left text-sm border border-gray-200">
+          <thead className="bg-gray-100 text-gray-600">
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Created At</th>
+              <th className="px-4 py-2">Nome</th>
+              <th className="px-4 py-2">Email</th>
+              <th className="px-4 py-2">Cargo</th>
+              <th className="px-4 py-2">Criado em</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id} className="border-t">
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>{user.role}</td>
-                <td>
+              <tr key={user.id} className="border-t hover:bg-gray-50">
+                <td className="px-4 py-2">{user.name}</td>
+                <td className="px-4 py-2">{user.email}</td>
+                <td className="px-4 py-2">{user.role}</td>
+                <td className="px-4 py-2">
                   {user.createdAt
                     ? new Date(user.createdAt).toLocaleString()
                     : "—"}
