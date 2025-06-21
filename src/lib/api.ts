@@ -34,14 +34,6 @@ export const refreshToken = async (): Promise<AuthResponse> => {
 };
 
 export const getCurrentUser = async (): Promise<User> => {
-  const res = await fetch(`${baseURL}/api/auth/me`, {
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    throw new Error("Not authenticated");
-  }
-
-  const user: User = await res.json();
-  return user;
+  const response = await api.get<User>("/api/auth/me");
+  return response.data;
 };
