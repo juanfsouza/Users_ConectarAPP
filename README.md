@@ -1,4 +1,4 @@
-## Users Manager - Conéctar
+![ezgif-860a11f584795e](https://github.com/user-attachments/assets/afc37369-bc8e-416d-ae14-c37a9436c6b2)## Users Manager - Conéctar
 
 ## Introdução
 
@@ -48,3 +48,7 @@ Uma ferramenta interna para gerenciar usuários da Conéctar, com foco em segura
 - Backend Render: https://users-conectar.onrender.com
 
 Obs: O backend pode não estar funcionando devido às regras do Render; se precisar testar, envie uma mensagem no WhatsApp para reiniciar.
+
+![ezgif-860a11f584795e](https://github.com/user-attachments/assets/402b96d7-2d26-4825-a8d4-3b467ba5709a)
+
+
