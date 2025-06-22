@@ -1,6 +1,6 @@
 ## Introdução
 
-Uma ferramenta interna para gerenciar usuários da Conéctar, com foco em segurança e escalabilidade.
+O Users_ConectarAPP é um aplicativo front-end baseado em Next.js, projetado para gerenciar funcionalidades relacionadas ao usuário.
 
 ## Pré-requisitos
 
