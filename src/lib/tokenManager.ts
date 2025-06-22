@@ -1,25 +1,13 @@
-let token: string | null = null;
-
-export const setToken = (newToken: string) => {
-  token = newToken;
-  if (typeof window !== "undefined") {
-    localStorage.setItem("token", newToken);
-  }
+export const setToken = () => {
+  // w
+  console.log('Token received, relying on HTTP-only cookie');
 };
 
-export const getToken = () => {
-  if (token) return token;
-
-  if (typeof window !== "undefined") {
-    token = localStorage.getItem("token");
-  }
-
-  return token;
+export const getToken = (): string | null => {
+  // R 
+  return null;
 };
 
 export const clearToken = () => {
-  token = null;
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("token");
-  }
+  // w
 };

@@ -1,15 +1,7 @@
-import axios from "axios";
-import { User, AuthResponse } from "@/src/types";
+import axios from 'axios';
+import { User, AuthResponse } from '@/src/types';
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-
-let token: string | null = null;
-
-const setToken = (newToken: string) => {
-  token = newToken;
-};
-
-const getToken = () => token;
+const baseURL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
 
 const api = axios.create({
   baseURL,
@@ -17,13 +9,6 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const currentToken = getToken();
-  if (currentToken) {
-    if (!config.headers) {
-      config.headers = {};
-    }
-    config.headers.Authorization = `Bearer ${currentToken}`;
-  }
   return config;
 });
 
@@ -31,36 +16,58 @@ export const initiateGoogleLogin = () => {
   window.location.href = `${baseURL}/api/auth/google`;
 };
 
-export const login = async (
-  email: string,
-  password: string
-): Promise<AuthResponse> => {
-  const response = await api.post<AuthResponse>("/api/auth/login", {
+export const login = async (email: string, password: string): Promise<AuthResponse> => {
+  const response = await api.post<AuthResponse>('/api/auth/login', {
     email,
     password,
   });
-  if (response.data.accessToken) {
-    setToken(response.data.accessToken);
-  }
   return response.data;
 };
 
-export const getUsers = async (): Promise<{ users: User[] }> => {
-  const response = await api.get<{ users: User[] }>("/api/users");
+export const getUsers = async (params?: {
+  role?: 'admin' | 'user';
+  sortBy?: 'name' | 'createdAt';
+  order?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}): Promise<{ users: User[]; total: number }> => {
+  const response = await api.get<{ users: User[]; total: number }>('api/users', { params });
   return response.data;
 };
 
 export const refreshToken = async (): Promise<AuthResponse> => {
-  const response = await api.post<AuthResponse>("/api/auth/refresh");
+  const response = await api.post<AuthResponse>('/api/auth/refresh');
   return response.data;
 };
 
 export const getCurrentUser = async (): Promise<User> => {
-  const response = await api.get<User>("/api/auth/me");
-  return response.data;
+  try {
+    const response = await api.get<User>("/api/auth/me");
+    return response.data;
+  } catch (err: unknown) {
+    // Type guard to check if err has a response property
+    if (err instanceof Error && 'response' in err && err.response && typeof err.response === 'object' && 'status' in err.response) {
+      if (err.response.status === 401) {
+        return Promise.reject("Unauthorized");
+      }
+    }
+    throw err;
+  }
 };
 
 export const createUser = async (user: { name: string; email: string; password: string }) => {
-  const response = await api.post("/api/auth/register", user);
+  const response = await api.post('/api/auth/register', user);
+  return response.data;
+};
+
+export const deleteUser = async (id: string): Promise<void> => {
+  await api.delete(`/api/users/${id}`);
+};
+
+export const updateUser = async (
+  id: string,
+  data: { name: string; email: string; role: string }
+) => {
+  const response = await api.patch(`/api/users/${id}`, data);
   return response.data;
 };

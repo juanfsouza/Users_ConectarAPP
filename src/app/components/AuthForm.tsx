@@ -10,7 +10,6 @@ import { toast, Toaster } from "sonner";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useAuth } from "@/src/hooks/useAuth";
-import { setToken } from "@/src/lib/tokenManager";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -28,17 +27,15 @@ export function AuthForm() {
     if (typeof window === "undefined") return;
 
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
+    const googleLogin = urlParams.get("googleLogin");
 
-    if (token) {
-      setToken(token);
-      setAuthToken(token);
+    if (googleLogin === "success") {
+      setAuthToken();
       toast.success("Login com Google feito com sucesso");
       router.push("/dashboard");
-      window.history.replaceState({}, document.title, "/");
+      window.history.replaceState({}, document.title, "/dashboard");
     }
   }, [setAuthToken, router]);
-
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -48,16 +45,9 @@ export function AuthForm() {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      const response = await login(data.email, data.password);
-      if (typeof response === "object" && response !== null && "accessToken" in response) {
-        const { accessToken } = response as { accessToken: string };
-        setToken(accessToken);
-        setAuthToken(accessToken);
-        toast.success("Login successful");
-        router.push("/dashboard");
-      } else {
-        throw new Error();
-      }
+      await login(data.email, data.password);
+      toast.success("Login successful");
+      router.push("/dashboard");
     } catch {
       toast.error("Login failed");
     } finally {
@@ -80,9 +70,7 @@ export function AuthForm() {
           disabled={isLoading}
         />
         {form.formState.errors.email && (
-          <p className="text-red-500 text-sm">
-            {form.formState.errors.email.message}
-          </p>
+          <p className="text-red-500 text-sm">{form.formState.errors.email.message}</p>
         )}
         <Input
           {...form.register("password")}
@@ -91,9 +79,7 @@ export function AuthForm() {
           disabled={isLoading}
         />
         {form.formState.errors.password && (
-          <p className="text-red-500 text-sm">
-            {form.formState.errors.password.message}
-          </p>
+          <p className="text-red-500 text-sm">{form.formState.errors.password.message}</p>
         )}
         <Button type="submit" disabled={isLoading}>
           Login
@@ -103,7 +89,7 @@ export function AuthForm() {
           onClick={handleGoogleLogin}
           disabled={isLoading}
         >
-          Login with Google
+          Login com Google
         </Button>
       </form>
       <Toaster />

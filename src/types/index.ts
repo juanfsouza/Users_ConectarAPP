@@ -1,12 +1,12 @@
-export type User = {
+export interface User {
   id: string;
   name: string;
   email: string;
-  role: "user" | "admin";
-  createdAt?: Date;
-  updatedAt?: Date;
-  lastLogin?: Date;
-};
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+  lastLogin: string | null;
+}
 
 export type AuthResponse = {
   accessToken: string;
@@ -17,3 +17,4 @@ export type ApiError = {
   message: string;
   status?: number;
 };
+
