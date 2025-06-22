@@ -132,13 +132,13 @@ export function UserTable() {
                 <td className="px-4 py-2 flex gap-2">
                   <Link
                     href={`/dashboard/users/${user.id}/edit`}
-                    className="text-blue-500 hover:underline text-sm"
+                    className="text-zinc-500 hover:underline text-sm"
                   >
                     Editar
                   </Link>
                   <button
                     onClick={() => handleDelete(user.id)}
-                    className="text-red-500 hover:underline text-sm"
+                    className="text-red-600 hover:underline text-sm"
                   >
                     Excluir
                   </button>

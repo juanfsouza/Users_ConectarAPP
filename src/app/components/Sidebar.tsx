@@ -6,6 +6,7 @@ import {
   IconBrandTabler,
   IconSettings,
   IconUserBolt,
+  IconUserX,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
@@ -39,6 +40,11 @@ export function SidebarDemo({ children }: { children: React.ReactNode }) {
       label: "Settings",
       href: "/dashboard/settings",
       icon: <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />,
+    },
+    {
+      label: "Inactive Users",
+      href: "/dashboard/inactive-users",
+      icon: <IconUserX className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />, // Adicione o ícone
     },
     {
       label: "Logout",

@@ -11,10 +11,10 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!loading && !user) {
       router.replace("/dashboard");
+    } else if (user && user.role !== 'admin' && window.location.pathname.includes('/inactive-users')) {
+      router.replace('/dashboard');
     }
   }, [loading, user, router]);
-
-
 
   return <>{children}</>;
 }

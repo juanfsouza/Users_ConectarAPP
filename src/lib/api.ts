@@ -71,3 +71,8 @@ export const updateUser = async (
   const response = await api.patch(`/api/users/${id}`, data);
   return response.data;
 };
+
+export const getInactiveUsers = async (): Promise<User[]> => {
+  const response = await api.get<User[]>('/api/users/inactive');
+  return response.data;
+};
