@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { User } from "@/src/types";
 import Link from "next/link";
+import { useAuth } from "@/src/hooks/useAuth";
 
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([]);
@@ -15,6 +16,7 @@ export function UserTable() {
   const [sortBy, setSortBy] = useState<"name" | "createdAt">("createdAt");
   const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -31,7 +33,7 @@ export function UserTable() {
         setUsers(users);
         setTotal(total);
       } else {
-        setUsers([currentUser]);
+        setUsers([]);
       }
     } catch (err) {
       console.error(err);
@@ -71,6 +73,10 @@ export function UserTable() {
   const totalPages = Math.ceil(total / 10);
 
   if (loading) return <p>Carregando...</p>;
+
+  if (user?.role !== "admin") {
+    return <p>Apenas administradores podem visualizar esta lista.</p>;
+  }
 
   return (
     <Card>
@@ -117,6 +123,7 @@ export function UserTable() {
               <th className="px-4 py-2">Email</th>
               <th className="px-4 py-2">Cargo</th>
               <th className="px-4 py-2">Criado em</th>
+              <th className="px-4 py-2">Último Login</th> {/* Adicionar coluna lastLogin */}
               <th className="px-4 py-2">Ações</th>
             </tr>
           </thead>
@@ -128,6 +135,9 @@ export function UserTable() {
                 <td className="px-4 py-2">{user.role}</td>
                 <td className="px-4 py-2">
                   {new Date(user.createdAt).toLocaleString()}
+                </td>
+                <td className="px-4 py-2">
+                  {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Nunca'}
                 </td>
                 <td className="px-4 py-2 flex gap-2">
                   <Link
