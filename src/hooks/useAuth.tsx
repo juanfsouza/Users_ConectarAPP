@@ -35,6 +35,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (res.ok) {
           const userData: User = await res.json();
           setUser(userData);
+          // Atualizar lastLogin após login bem-sucedido
+          await api.post('/api/users/update-last-login');
         } else {
           console.error("Failed to fetch user:", res.status, res.statusText);
           setUser(null);
@@ -76,9 +78,7 @@ export const useAuth = () => {
   return context;
 };
 
-
 export const updateUser = async (id: string, data: { name: string; email: string; role: string }) => {
   const response = await api.patch(`api/users/${id}`, data);
   return response.data;
 };
-
