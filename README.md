@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Users Manager - Conéctar
 
-## Getting Started
+## Introdução
 
-First, run the development server:
+Uma ferramenta interna para gerenciar usuários da Conéctar, com foco em segurança e escalabilidade.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Pré-requisitos
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Node.js 18+
+- Next.js
+- Variáveis de ambiente em .env
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Instalação
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Clone o repositório: git clone https://github.com/juanfsouza/Users_ConectarAPP
+- Instale as dependências: cd Users_ConectarAPP && npm install
+- Configure o .env com as variáveis necessárias.
+- Crie o banco de dados e migre o schema (ex.: npx typeorm migration:run).
 
-## Learn More
+## Execução
 
-To learn more about Next.js, take a look at the following resources:
+- Backend: npm run start:dev
+- Frontend: npm run dev
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Estrutura do Projeto
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- components: Componentes React (ex.: ClientWrapper.tsx, UsersTable.tsx)
+- contexts: Contextos (ex.: AuthContext.tsx)
+- dashboard: Páginas do dashboard (ex.: page.tsx, profile/page.tsx)
+- pages: Páginas principais (ex.: register/page.tsx)
+- users/[id]/edit: Edição de usuários
+- hooks: Hooks personalizados (ex.: useAuth.tsx)
+- lib: Bibliotecas (ex.: api.ts, tokenManager.ts)
+- types: Tipos TypeScript
 
-## Deploy on Vercel
+## Funcionalidades
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- CRUD de usuários com permissões (admin/user).
+- Filtros e ordenação.
+- Notificações de usuários inativos.
+- Logout funcional.
+- Login Google
+- Testes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deploy
+
+- Frontend Vercel: https://users-manager-frontend.vercel.app/
+- Backend Render: https://users-conectar.onrender.com
+
+Obs: O backend pode não estar funcionando devido às regras do Render; se precisar testar, envie uma mensagem no WhatsApp para reiniciar.
