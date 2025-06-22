@@ -26,7 +26,8 @@ export const login = async (email: string, password: string): Promise<AuthRespon
 
 export const getUsers = async (params?: {
   role?: 'admin' | 'user';
-  sortBy?: 'name' | 'createdAt';
+  lastLogin?: 'never' | 'last7' | 'over30';
+  sortBy?: 'name' | 'createdAt' | 'lastLogin';
   order?: 'asc' | 'desc';
   page?: number;
   limit?: number;
@@ -45,7 +46,6 @@ export const getCurrentUser = async (): Promise<User> => {
     const response = await api.get<User>("/api/auth/me");
     return response.data;
   } catch (err: unknown) {
-    // Type guard to check if err has a response property
     if (err instanceof Error && 'response' in err && err.response && typeof err.response === 'object' && 'status' in err.response) {
       if (err.response.status === 401) {
         return Promise.reject("Unauthorized");

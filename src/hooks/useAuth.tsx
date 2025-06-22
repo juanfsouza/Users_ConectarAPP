@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (res.ok) {
           const userData: User = await res.json();
           setUser(userData);
-          await api.post('/api/users/update-last-login');
+          // Remover chamada a /api/users/update-last-login, pois o backend já atualiza
         } else {
           console.error("Failed to fetch user:", res.status, res.statusText);
           setUser(null);

@@ -11,9 +11,9 @@ import { useAuth } from "@/src/hooks/useAuth";
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [roleFilter, setRoleFilter] = useState<string>("");
-  const [sortBy, setSortBy] = useState<"name" | "createdAt">("createdAt");
+  const [roleFilter, setRoleFilter] = useState<"admin" | "user" | "">("");
+  const [lastLoginFilter, setLastLoginFilter] = useState<"never" | "last7" | "over30" | "">("");
+  const [sortBy, setSortBy] = useState<"name" | "createdAt" | "lastLogin">("createdAt");
   const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -23,17 +23,24 @@ export function UserTable() {
     try {
       const currentUser = await getCurrentUser();
       if (currentUser.role === "admin") {
-        const { users, total } = await getUsers({
-          role: roleFilter === "admin" || roleFilter === "user" ? roleFilter : undefined,
+        const { users } = await getUsers({
+          role: roleFilter === "" ? undefined : roleFilter,
+          lastLogin: lastLoginFilter || undefined,
           sortBy,
           order,
           page: currentPage,
           limit: 10,
         });
-        setUsers(users);
-        setTotal(total);
+        const activeUsers = users.filter((u) => {
+          if (!u.lastLogin) return false;
+          const lastLoginDate = new Date(u.lastLogin);
+          const now = new Date();
+          const threshold = new Date(now.setDate(now.getDate() - 30));
+          return lastLoginDate >= threshold;
+        });
+        setUsers(activeUsers);
       } else {
-        setUsers([]);
+        setUsers([currentUser]);
       }
     } catch (err) {
       console.error(err);
@@ -41,7 +48,7 @@ export function UserTable() {
     } finally {
       setLoading(false);
     }
-  }, [roleFilter, sortBy, order, currentPage]);
+  }, [roleFilter, lastLoginFilter, sortBy, order, currentPage]);
 
   useEffect(() => {
     fetchData();
@@ -54,29 +61,40 @@ export function UserTable() {
       await deleteUser(id);
       toast.success("Usuário excluído com sucesso");
 
-      const { users, total } = await getUsers({
-        role: roleFilter === "admin" || roleFilter === "user" ? roleFilter : undefined,
+      const { users } = await getUsers({
+        role: roleFilter || undefined,
+        lastLogin: lastLoginFilter || undefined,
         sortBy,
         order,
         page: currentPage,
         limit: 10,
       });
-
-      setUsers(users);
-      setTotal(total);
+      const activeUsers = users.filter((u) => {
+        if (!u.lastLogin) return false;
+        const lastLoginDate = new Date(u.lastLogin);
+        const now = new Date();
+        const threshold = new Date(now.setDate(now.getDate() - 30));
+        return lastLoginDate >= threshold;
+      });
+      setUsers(activeUsers);
     } catch (err) {
       console.error(err);
       toast.error("Erro ao excluir usuário");
     }
   };
 
-  const totalPages = Math.ceil(total / 10);
+  const totalPages = Math.ceil(users.length / 10);
 
   if (loading) return <p>Carregando...</p>;
 
-  if (user?.role !== "admin") {
-    return <p>Apenas administradores podem visualizar esta lista.</p>;
-  }
+  const formatLastLogin = (lastLogin: string | null): string => {
+    if (!lastLogin) return "Nunca";
+    const lastLoginDate = new Date(lastLogin);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - lastLoginDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return `${diffDays} dia${diffDays === 1 ? "" : "s"} atrás`;
+  };
 
   return (
     <Card>
@@ -84,36 +102,49 @@ export function UserTable() {
         <CardTitle>Usuários</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Filtros */}
-        <div className="flex gap-4 flex-wrap mb-4">
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="border p-2 rounded"
-          >
-            <option value="">Todos os Cargos</option>
-            <option value="admin">Admin</option>
-            <option value="user">User</option>
-          </select>
+        {/* Filtros visíveis apenas para admins */}
+        {user?.role === "admin" && (
+          <div className="flex gap-4 flex-wrap mb-4">
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value as "" | "admin" | "user")}
+              className="border p-2 rounded"
+            >
+              <option value="">Todos os Cargos</option>
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
+            </select>
 
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as "name" | "createdAt")}
-            className="border p-2 rounded"
-          >
-            <option value="createdAt">Criado em</option>
-            <option value="name">Nome</option>
-          </select>
+            <select
+              value={lastLoginFilter}
+              onChange={(e) => setLastLoginFilter(e.target.value as "never" | "last7" | "over30" | "")}
+              className="border p-2 rounded"
+            >
+              <option value="">Todos os Últimos Logins</option>
+              <option value="last7">Últimos 7 dias</option>
+              <option value="over30">Mais de 30 dias</option>
+            </select>
 
-          <select
-            value={order}
-            onChange={(e) => setOrder(e.target.value as "asc" | "desc")}
-            className="border p-2 rounded"
-          >
-            <option value="asc">Crescente</option>
-            <option value="desc">Decrescente</option>
-          </select>
-        </div>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as "name" | "createdAt" | "lastLogin")}
+              className="border p-2 rounded"
+            >
+              <option value="createdAt">Criado em</option>
+              <option value="name">Nome</option>
+              <option value="lastLogin">Último Login</option>
+            </select>
+
+            <select
+              value={order}
+              onChange={(e) => setOrder(e.target.value as "asc" | "desc")}
+              className="border p-2 rounded"
+            >
+              <option value="asc">Crescente</option>
+              <option value="desc">Decrescente</option>
+            </select>
+          </div>
+        )}
 
         {/* Tabela */}
         <table className="w-full text-left text-sm border border-gray-200">
@@ -123,7 +154,7 @@ export function UserTable() {
               <th className="px-4 py-2">Email</th>
               <th className="px-4 py-2">Cargo</th>
               <th className="px-4 py-2">Criado em</th>
-              <th className="px-4 py-2">Último Login</th> {/* Adicionar coluna lastLogin */}
+              <th className="px-4 py-2">Último Login</th>
               <th className="px-4 py-2">Ações</th>
             </tr>
           </thead>
@@ -133,12 +164,8 @@ export function UserTable() {
                 <td className="px-4 py-2">{user.name}</td>
                 <td className="px-4 py-2">{user.email}</td>
                 <td className="px-4 py-2">{user.role}</td>
-                <td className="px-4 py-2">
-                  {new Date(user.createdAt).toLocaleString()}
-                </td>
-                <td className="px-4 py-2">
-                  {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Nunca'}
-                </td>
+                <td className="px-4 py-2">{new Date(user.createdAt).toLocaleString()}</td>
+                <td className="px-4 py-2">{formatLastLogin(user.lastLogin)}</td>
                 <td className="px-4 py-2 flex gap-2">
                   <Link
                     href={`/dashboard/users/${user.id}/edit`}
